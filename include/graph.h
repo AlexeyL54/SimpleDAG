@@ -7,60 +7,59 @@
 using std::string;
 using std::vector;
 
-/**
- * @brief Структура вершины графа
- */
-struct Element {
-  string id;    // Уникальный идентификатор узла
-  Element *ptr; // Указатель на следующий узел
-};
-
-typedef Element Node;
+struct Element;
+struct Head;
 
 /**
  * @brief Структура элемента списка заголовков
  */
 struct Head {
-  Node *node_ptr;      // Указатель на вершину
-  Head *next_head_ptr; // Указатель на следующую вершину в списке
+  string id;
+  Element *adjency_list_head;
+  Element *adjency_list_tail;
+  Head *next_head; // Указатель на следующую вершину в списке заголовков
 };
 
-// Глобальные указатели для управления графом
-extern Node *first_node;     // Указатель на первый узел графа
-extern Head *first_head_ptr; // Указатель на первый заголовок графа
+/**
+ * @brief Структура вершины графа
+ */
+struct Element {
+  Head *my_head;        // Указатель на заголовок этой вершины
+  Element *next_adjent; // Указатель на следующий узел
+};
 
 /**
  * @brief Создает новый узел графа с заданным идентификатором
  * @param id Уникальный идентификатор узла
  * @return Указатель на созданный узел
  */
-Node *createNode(string id);
+Head *createNode(string id);
 
 /**
  * @brief Возвращает указатель на первый (корневой) узел графа
  * @return Указатель на корневой узел
  */
-Node *firstNode();
+Head *firstNode();
 
 /**
  * @brief Получает вектор всех узлов, следующих за указанным узлом
  * @param node Указатель на исходный узел
  * @return Вектор указателей на следующие узлы
  */
-vector<Node *> nextNodes(Node *);
+vector<Head *> adjentNodes(Head *);
 
 /**
  * @brief Добавляет новый узел в граф, связывая его с существующим узлом
  * @param atom Указатель на добавляемый узел
  * @param to Указатель на узел назначения (по умолчанию - корневой узел)
  */
-void addNode(Node *atom, Node *to = first_node);
+void addNode(Head *node, Head *to);
 
 /**
  * @brief Удаляет узел из графа и все связанные с ним связи
  * @param element Указатель на удаляемый узел
  */
-void deleteNode(Node *element);
+void deleteNode(Head *element);
 
 /**
  * @brief Проверяет граф на наличие циклов
@@ -77,6 +76,6 @@ void clearGraph();
  * @brief Проверяет, содержит ли граф какие-либо узлы
  * @return true если граф пуст, false если содержит узлы
  */
-bool isGraphEmpty();
+bool graphIsEmpty();
 
 #endif // !GRAPH_H

@@ -7,25 +7,25 @@
 using std::string;
 using std::vector;
 
-struct Element;
-struct Head;
+struct Adjent;
+struct Node;
 
 /**
  * @brief Структура элемента списка заголовков
  */
-struct Head {
+struct Node {
   string id;
-  Element *adjency_list_head;
-  Element *adjency_list_tail;
-  Head *next_head; // Указатель на следующую вершину в списке заголовков
+  Adjent *adjency_list_head;
+  Adjent *adjency_list_tail;
+  Node *next_head; // Указатель на следующую вершину в списке заголовков
 };
 
 /**
  * @brief Структура вершины графа
  */
-struct Element {
-  Head *my_head;        // Указатель на заголовок этой вершины
-  Element *next_adjent; // Указатель на следующий узел
+struct Adjent {
+  Node *my_head;       // Указатель на заголовок этой вершины
+  Adjent *next_adjent; // Указатель на следующий узел
 };
 
 /**
@@ -33,39 +33,53 @@ struct Element {
  * @param id Уникальный идентификатор узла
  * @return Указатель на созданный узел
  */
-Head *createNode(string id);
+Node *createNode(string id);
+
+/**
+ * @brief Создает новый элемент списка смежности
+ * @param node Указатель на заголовок, соответствующий этой вершине
+ * @return Указатель на созданный узел
+ */
+Adjent *createAdjent(Node *node);
 
 /**
  * @brief Возвращает указатель на первый (корневой) узел графа
  * @return Указатель на корневой узел
  */
-Head *firstNode();
+Node *firstNode();
+
+/**
+ * @brief Проверить, есть ли в графе определенный узел
+ * @param node указатель на узел
+ * @return true, если узел найден, false - иначе
+ */
+bool alreadyInGraph(Node *node);
 
 /**
  * @brief Получает вектор всех узлов, следующих за указанным узлом
  * @param node Указатель на исходный узел
  * @return Вектор указателей на следующие узлы
  */
-vector<Head *> adjentNodes(Head *);
+vector<Node *> adjentNodes(Node *node);
 
 /**
- * @brief Добавляет новый узел в граф, связывая его с существующим узлом
- * @param atom Указатель на добавляемый узел
- * @param to Указатель на узел назначения (по умолчанию - корневой узел)
+ * @brief Связать узел с другими
+ * @param node указатель на узел
+ * @param to_another_nodes узлы, в которые нужно попасть из node
  */
-void addNode(Head *node, Head *to);
+void connect(Node *node, vector<Node *> to_another_nodes);
+
+/**
+ * @brief Добавляет новый узел в граф, не связывая его с другими узлами
+ * @param node Указатель на добавляемый узел
+ */
+void addNode(Node *node);
 
 /**
  * @brief Удаляет узел из графа и все связанные с ним связи
- * @param element Указатель на удаляемый узел
+ * @param node Указатель на удаляемый узел
  */
-void deleteNode(Head *element);
-
-/**
- * @brief Проверяет граф на наличие циклов
- * @return true если граф ациклический, false если обнаружены циклы
- */
-bool isGraphAcyclic();
+void deleteNode(Node *node);
 
 /**
  * @brief Полностью очищает граф, удаляя все узлы
@@ -77,5 +91,11 @@ void clearGraph();
  * @return true если граф пуст, false если содержит узлы
  */
 bool graphIsEmpty();
+
+/**
+ * @brief Пройти один раз по всем узлам графа
+ * @param procedure указатель на функцию операции над узлом
+ */
+void deepFirstSearch(void (*procedure)(Node *node));
 
 #endif // !GRAPH_H

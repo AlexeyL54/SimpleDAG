@@ -1,5 +1,4 @@
 #include "../include/graph.h"
-#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -11,12 +10,36 @@ Node *last_head_ptr = nullptr;
 int nodes_total = 0;
 
 /**
+ * @brief Получить количество узлов графа
+ * @return количество узлов графа
+ */
+int nodesTotal() { return nodes_total; }
+
+/**
+ * @brief Возвращает указатель на первый (корневой) узел графа
+ * @return Указатель на корневой узел
+ */
+Node *firstNode() { return first_head_ptr; }
+
+/**
+ * @brief Возвращает указатель на последний узел графа в списке заголовков
+ * @return Указатель на последний узел в списке заголовков
+ */
+Node *lastNode() { return last_head_ptr; }
+
+/**
+ * @brief Проверяет, содержит ли граф какие-либо узлы
+ * @return true если граф пуст, false если содержит узлы
+ */
+bool graphIsEmpty() { return first_head_ptr == nullptr; }
+
+/**
  * @brief Создает новый узел графа с заданным идентификатором
  * @param id Уникальный идентификатор узла
  * @return Указатель на созданный узел
  */
 Node *createNode(string id) {
-  Node *new_node = new Node();
+  Node *new_node = new Node;
   new_node->id = id;
   new_node->next_head = nullptr;
   new_node->adjency_list_head = nullptr;
@@ -30,19 +53,10 @@ Node *createNode(string id) {
  * @return Указатель на созданный узел
  */
 Adjent *createAdjent(Node *node) {
-  Adjent *new_adjent = new Adjent();
+  Adjent *new_adjent = new Adjent;
   new_adjent->next_adjent = nullptr;
   new_adjent->my_head = node;
   return new_adjent;
-}
-
-/**
- * @brief Возвращает указатель на первый (корневой) узел графа
- * @return Указатель на корневой узел
- */
-Node *firstNode() {
-  Node *first_node = first_head_ptr;
-  return first_node;
 }
 
 /**
@@ -52,7 +66,7 @@ Node *firstNode() {
  */
 bool alreadyInGraph(Node *node) {
   bool found = false;
-  Node *next;
+  Node *next = first_head_ptr;
 
   while (next and (not found)) {
     if (next == node)
@@ -86,11 +100,23 @@ vector<Node *> adjentNodes(Node *node) {
 void connect(Node *node, vector<Node *> to_another_nodes) {
   Adjent *adjent = nullptr;
 
+  // Проверяем, что node добавлен в граф
+  if (!alreadyInGraph(node)) {
+    return;
+  }
+
   for (Node *to_node : to_another_nodes) {
+
     if (alreadyInGraph(to_node)) {
       adjent = createAdjent(to_node);
-      node->adjency_list_tail->next_adjent = adjent;
-      node->adjency_list_tail = adjent;
+
+      if (!node->adjency_list_head) {
+        node->adjency_list_head = adjent;
+        node->adjency_list_tail = adjent;
+      } else {
+        node->adjency_list_tail->next_adjent = adjent;
+        node->adjency_list_tail = adjent;
+      }
     }
   }
 }
@@ -102,14 +128,15 @@ void connect(Node *node, vector<Node *> to_another_nodes) {
  * @return предыдущий элемент списка смежности
  */
 Adjent *getPreviousAdjentInList(Node *node, Adjent *adjent) {
-  Adjent *next, *previous;
-  next = node->adjency_list_head;
-
-  while (next and next != adjent) {
-    previous = next;
-    next = next->next_adjent;
+  if (!node || !adjent || node->adjency_list_head == adjent) {
+    return nullptr;
   }
-  return previous;
+
+  Adjent *current = node->adjency_list_head;
+  while (current && current->next_adjent != adjent) {
+    current = current->next_adjent;
+  }
+  return current;
 }
 
 /*
@@ -119,14 +146,15 @@ Adjent *getPreviousAdjentInList(Node *node, Adjent *adjent) {
  * @return предыдущий элемент списка смежности
  */
 Node *getPreviousNodeInList(Node *node) {
-  Node *next, *previous;
-  next = first_head_ptr;
-
-  while (next and next != node) {
-    previous = next;
-    next = next->next_head;
+  if (!first_head_ptr || first_head_ptr == node) {
+    return nullptr;
   }
-  return previous;
+
+  Node *current = first_head_ptr;
+  while (current && current->next_head != node) {
+    current = current->next_head;
+  }
+  return current;
 }
 
 /**
@@ -171,28 +199,26 @@ void deleteAdjentyList(Node *node) {
  * @param adjent элемент списка смежности
  */
 void deleteAdjent(Node *node, Adjent *adjent) {
-  // если только один смежный узел
-  if (node->adjency_list_head == adjent and node->adjency_list_tail == adjent) {
-    node->adjency_list_head = nullptr;
-    node->adjency_list_tail = nullptr;
-  }
-  // если первый, но не единственный смежный узел в списке смежности
-  else if (node->adjency_list_head == adjent and
-           node->adjency_list_tail != adjent) {
+  if (!node || !adjent)
+    return;
+
+  // Если это первый элемент в списке
+  if (node->adjency_list_head == adjent) {
     node->adjency_list_head = adjent->next_adjent;
-  }
-  // если не первый, не последний
-  else if (node->adjency_list_head != adjent and
-           node->adjency_list_tail != adjent) {
-    Adjent *previous = getPreviousAdjentInList(node, adjent);
-    previous->next_adjent = adjent->next_adjent;
-  }
-  // если последний, но не единственный
-  else if (node->adjency_list_head != adjent and
-           node->adjency_list_tail == adjent) {
-    Adjent *previous = getPreviousAdjentInList(node, adjent);
-    previous->next_adjent = nullptr;
-    node->adjency_list_tail = previous;
+    // Если это также последний элемент
+    if (node->adjency_list_tail == adjent) {
+      node->adjency_list_tail = nullptr;
+    }
+  } else {
+    // Ищем предыдущий элемент
+    Adjent *prev = getPreviousAdjentInList(node, adjent);
+    if (prev) {
+      prev->next_adjent = adjent->next_adjent;
+      // Если удаляем последний элемент
+      if (node->adjency_list_tail == adjent) {
+        node->adjency_list_tail = prev;
+      }
+    }
   }
   delete adjent;
 }
@@ -202,28 +228,27 @@ void deleteAdjent(Node *node, Adjent *adjent) {
  * @param head заголовок
  */
 void deleteNodeFromList(Node *node) {
-  // если единственный
-  if (first_head_ptr == node and last_head_ptr == node) {
-    first_head_ptr = nullptr;
-    last_head_ptr = nullptr;
-  }
-  // если первый, но не единственный
-  else if (first_head_ptr == node and last_head_ptr != node) {
-    first_head_ptr = node->next_head;
-  }
-  // если не первый и не последний
-  else if (first_head_ptr != node and last_head_ptr != node) {
-    Node *previous = getPreviousNodeInList(node);
-    previous->next_head = node->next_head;
-  }
-  // если последний, но не единственный
-  else if (first_head_ptr != node and last_head_ptr == node) {
-    Node *previous = getPreviousNodeInList(node);
-    previous->next_head = nullptr;
-    last_head_ptr = previous;
-  }
+  if (!first_head_ptr)
+    return;
 
-  delete node;
+  // Если это первый элемент
+  if (first_head_ptr == node) {
+    first_head_ptr = node->next_head;
+    // Если это также последний элемент
+    if (last_head_ptr == node) {
+      last_head_ptr = nullptr;
+    }
+  } else {
+    // Ищем предыдущий элемент
+    Node *prev = getPreviousNodeInList(node);
+    if (prev) {
+      prev->next_head = node->next_head;
+      // Если удаляем последний элемент
+      if (last_head_ptr == node) {
+        last_head_ptr = prev;
+      }
+    }
+  }
 }
 
 /**
@@ -231,33 +256,59 @@ void deleteNodeFromList(Node *node) {
  * @param element Указатель на удаляемый узел
  */
 void deleteNode(Node *node) {
-  Node *next_head;
-  Adjent *next_adjent_in_list;
+  if (!node || !alreadyInGraph(node))
+    return;
 
-  while (next_head) {
+  // Удаляем все связи, ведущие к этому узлу из других узлов
+  Node *current_head = first_head_ptr;
+  while (current_head) {
+    if (current_head != node) {
+      Adjent *current_adjent = current_head->adjency_list_head;
+      Adjent *prev_adjent = nullptr;
 
-    while (next_adjent_in_list) {
-      if (next_adjent_in_list->my_head == node) {
-        deleteAdjent(next_head, next_adjent_in_list);
+      while (current_adjent) {
+        if (current_adjent->my_head == node) {
+          Adjent *to_delete = current_adjent;
+          current_adjent = current_adjent->next_adjent;
+
+          if (prev_adjent) {
+            prev_adjent->next_adjent = current_adjent;
+          } else {
+            current_head->adjency_list_head = current_adjent;
+          }
+
+          // Обновляем tail если нужно
+          if (current_head->adjency_list_tail == to_delete) {
+            current_head->adjency_list_tail = prev_adjent;
+          }
+
+          delete to_delete;
+        } else {
+          prev_adjent = current_adjent;
+          current_adjent = current_adjent->next_adjent;
+        }
       }
-      next_adjent_in_list = next_adjent_in_list->next_adjent;
     }
-    if (next_head == node) {
-      deleteAdjentyList(next_head);
-      deleteNodeFromList(next_head);
-      nodes_total--;
-      return;
-    }
-    next_head = next_head->next_head;
+    current_head = current_head->next_head;
   }
+
+  deleteAdjentyList(node);
+  deleteNodeFromList(node);
+  delete node;
+  nodes_total--;
 }
 
 /**
  * @brief Полностью очищает граф, удаляя все узлы
  */
 void clearGraph() {
-  Node *next_head, *current_head;
-  Adjent *next_adjent, *current_adjent;
+  if (!first_head_ptr)
+    return;
+
+  Node *next_head = first_head_ptr;
+  Node *current_head;
+  Adjent *next_adjent = first_head_ptr->adjency_list_head;
+  Adjent *current_adjent;
 
   while (next_head) {
 
@@ -270,15 +321,9 @@ void clearGraph() {
     next_head = next_head->next_head;
     delete current_head;
   }
-}
-
-/**
- * @brief Проверяет, содержит ли граф какие-либо узлы
- * @return true если граф пуст, false если содержит узлы
- */
-bool graphIsEmpty() {
-  bool empty = (first_head_ptr == nullptr);
-  return empty;
+  first_head_ptr = nullptr;
+  last_head_ptr = nullptr;
+  nodes_total = 0;
 }
 
 /*
@@ -289,11 +334,11 @@ bool graphIsEmpty() {
  * @param last_visited индекс последнего посещенного узла в массиве (изначально
  * -1)
  */
-void deepFirstSearchRecursive(void *(procedure)(Node * node), Node *node,
-                              Node **visited_nodes, size_t *last_visited) {
+void deepFirstSearchRecursive(void (*procedure)(Node *node), Node *node,
+                              Node **visited_nodes, int *last_visited) {
   Adjent *next = node->adjency_list_head;
 
-  for (size_t i = 0; i <= *last_visited; i++) {
+  for (int i = 0; i <= *last_visited; i++) {
     if (visited_nodes[i] == node) {
       return;
     }
@@ -313,9 +358,12 @@ void deepFirstSearchRecursive(void *(procedure)(Node * node), Node *node,
  * @brief Пройти один раз по всем узлам графа
  * @param procedure указатель на функцию операции над узлом
  */
-void deepFirstSearch(void *(procedure)(Node * node)) {
-  static Node **visited_nodes = new Node *[nodes_total];
-  size_t last_visited = -1;
+void deepFirstSearch(void (*procedure)(Node *node)) {
+  if (!first_head_ptr)
+    return;
+
+  Node **visited_nodes = new Node *[nodes_total];
+  int last_visited = -1;
 
   deepFirstSearchRecursive(procedure, first_head_ptr, visited_nodes,
                            &last_visited);

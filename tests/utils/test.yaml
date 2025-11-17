@@ -1,0 +1,24 @@
+sum_elements_of_column_1:
+  func: "sum"
+  type: "number"
+  column: 1
+
+sum_elements_of_column_2:
+  func: "sum"
+  type: "number"
+  column: 2
+
+find_average_of_column_1:
+  func: "sum"
+  type: "number"
+  column: 1
+
+find_average_of_column_2:
+  func: "sum"
+  type: "number"
+  column: 2
+
+concat_names:
+  func: "concatinate"
+  type: "string"
+  column: 3

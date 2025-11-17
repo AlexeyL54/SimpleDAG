@@ -19,10 +19,8 @@ using std::vector;
  * @brief Определение возможных типов функций для словаря операций
  */
 using FunctionVariant =
-    variant<function<float(vector<float>)>,   // Функции для числовых данных
-            function<string(vector<string>)>, // Функции для строковых данных
-            function<float(vector<Cell>)>,    // Функции для работы с ячейками
-            function<string(vector<Cell>)>    // Функции для работы с ячейками
+    variant<function<float(vector<float>)>,  // Функции для числовых данных
+            function<string(vector<string>)> // Функции для строковых данных
             >;
 
 /**

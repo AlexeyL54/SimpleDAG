@@ -68,6 +68,20 @@ Node *lastNode();
 bool alreadyInGraph(Node *node);
 
 /**
+ * @brief Проверить, есть ли в графе определенный узел
+ * @param id уникальный идентификатор узла
+ * @return true, если узел найден, false - иначе
+ */
+bool alreadyInGraph(string id);
+
+/*
+ * @brief Получть узел по id
+ * @param id уникальный идентификатор узла
+ * @return указатель на узел, если найден, nullptr - если нет
+ */
+Node *getNodeById(string id);
+
+/**
  * @brief Получает вектор всех узлов, следующих за указанным узлом
  * @param node Указатель на исходный узел
  * @return Вектор указателей на следующие узлы
@@ -80,6 +94,14 @@ vector<Node *> adjentNodes(Node *node);
  * @param to_another_nodes узлы, в которые нужно попасть из node
  */
 void connect(Node *node, vector<Node *> to_another_nodes);
+
+/*
+ * @brief Связать узел с другими
+ * @param id уникальный идентификатор узла
+ * @param to_another_ids вектор кникальных идентификаторов узлов, в которые
+ * нужно попасть из узла с идентификатором id
+ */
+void connect(string id, vector<string> to_another_ids);
 
 /**
  * @brief Добавляет новый узел в граф, не связывая его с другими узлами

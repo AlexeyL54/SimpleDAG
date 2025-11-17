@@ -1,19 +1,14 @@
 #ifndef PARSER_H
-
 #define PARSER_H
+
+#include "../libs/csv-parser/include/csv.hpp"
+#include "../libs/mini-yaml/yaml/Yaml.hpp"
 #include <string>
 #include <vector>
 
+using csv::CSVReader;
 using std::string;
 using std::vector;
-
-/**
- * @brief Структура, представляющая позицию ячейки в таблице
- */
-struct Cell {
-  int column; // Номер столбца (начиная с 0)
-  int row;    // Номер строки (начиная с 0)
-};
 
 /**
  * @brief Перечисление типов данных столбцов таблицы
@@ -25,46 +20,68 @@ enum ColumnType {
   UNKNOWN, // Тип данных не определен
 };
 
-/**
- * @brief Определяет тип данных столбца
- * @param head Заголовок столбца
- * @return Тип данных столбца
+namespace config {
+
+/*
+ * @brief Загрузить конфигурацию
+ * @param path путь к конфигурационному файлу
  */
-ColumnType getTypeOfColumn(string head);
+void loadConfig(string path);
+
+/*
+ * @brief Получить параметры (номера столбцов) по id
+ * @param id уникальный идентификотор операции
+ * @return номер столбца
+ */
+int getColumnById(string id);
+
+/*
+ * @brief Получить тип операции
+ * @param id уникальный идентификатор операции
+ * @return тип операции
+ */
+string getOpTypeById(string id);
+}; // namespace config
+
+namespace table {
 
 /**
  * @brief Определяет тип данных столбца
- * @param cells Вектор ячеек столбца
+ * @param reader указатель на объкт обработки файла csv
+ * @param head Заголовок столбца
  * @return Тип данных столбца
  */
-ColumnType getTypeOfColumn(vector<Cell> cells);
+ColumnType getTypeOfColumn(int column);
+/*
+ * @brief Считать столбец чисел из файла
+ * @param reader указатель на "документ"
+ * @param column номер столбца
+ * @return вектор чисел столбца
+ */
+vector<float> readNumericColumn(int column);
+
+/*
+ * @brief Считать столбец строк из файла
+ * @param reader указатель на "документ"
+ * @param column номер столбца
+ * @return вектор чисел столбца
+ */
+vector<string> readStringColumn(int column);
+
+}; // namespace table
 
 /**
- * @brief Читает строковый столбец таблицы по заголовку
- * @param head Заголовок столбца
- * @return Вектор строковых значений столбца
+ * @brief Разделить строку на подстроки по разделителю
+ * @param s строка
+ * @param delimiter разделитель
+ * @return вектор подстрок
  */
-vector<string> readStringColumn(string head);
+vector<string> split(const string &s, const string &delimiter);
 
 /**
- * @brief Читает строковый столбец таблицы по набору ячеек
- * @param cells Вектор ячеек для чтения
- * @return Вектор строковых значений
+ * @brief Создать граф по схеме
+ * @param scheme массив строк
  */
-vector<string> readStringColumn(vector<Cell> cells);
-
-/**
- * @brief Читает числовой столбец таблицы по заголовку
- * @param head Заголовок столбца
- * @return Вектор числовых значений столбца
- */
-vector<double> readNumericColumn(string head);
-
-/**
- * @brief Читает числовой столбец таблицы по набору ячеек
- * @param cells Вектор ячеек для чтения
- * @return Вектор числовых значений
- */
-vector<double> readNumericColumn(vector<Cell> cells);
+void createGraphFromScheme(vector<string> scheme);
 
 #endif // !PARSER_H

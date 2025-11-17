@@ -77,6 +77,43 @@ bool alreadyInGraph(Node *node) {
 }
 
 /**
+ * @brief Проверить, есть ли в графе определенный узел
+ * @param id уникальный идентификатор узла
+ * @return true, если узел найден, false - иначе
+ */
+bool alreadyInGraph(string id) {
+  bool found;
+  Node *next = first_head_ptr;
+
+  while (next and (not found)) {
+    if (next->id == id)
+      found = true;
+    next = next->next_head;
+  }
+  return found;
+}
+
+/*
+ * @brief Получть узел по id
+ * @param id уникальный идентификатор узла
+ * @return указатель на узел, если найден, nullptr - если нет
+ */
+Node *getNodeById(string id) {
+  bool found = false;
+  Node *next = first_head_ptr;
+  Node *node_by_id = nullptr;
+
+  while (next and (not found)) {
+    if (next->id == id) {
+      found = true;
+      node_by_id = next;
+    }
+    next = next->next_head;
+  }
+  return node_by_id;
+}
+
+/**
  * @brief Получает вектор всех узлов, следующих за указанным узлом
  * @param node Указатель на исходный узел
  * @return Вектор указателей на следующие узлы
@@ -95,7 +132,8 @@ vector<Node *> adjentNodes(Node *node) {
 /*
  * @brief Связать узел с другими
  * @param node указатель на узел
- * @param adjents узлы, в которые нужно попасть из node
+ * @param to_another_nodes вектор уникальных идентификаторов узлов, в которые
+ * нужно попасть из node
  */
 void connect(Node *node, vector<Node *> to_another_nodes) {
   Adjent *adjent = nullptr;
@@ -108,6 +146,39 @@ void connect(Node *node, vector<Node *> to_another_nodes) {
   for (Node *to_node : to_another_nodes) {
 
     if (alreadyInGraph(to_node)) {
+      adjent = createAdjent(to_node);
+
+      if (!node->adjency_list_head) {
+        node->adjency_list_head = adjent;
+        node->adjency_list_tail = adjent;
+      } else {
+        node->adjency_list_tail->next_adjent = adjent;
+        node->adjency_list_tail = adjent;
+      }
+    }
+  }
+}
+
+/*
+ * @brief Связать узел с другими
+ * @param id уникальный идентификатор узла
+ * @param to_another_ids вектор кникальных идентификаторов узлов, в которые
+ * нужно попасть из узла с идентификатором id
+ */
+void connect(string id, vector<string> to_another_ids) {
+  Adjent *adjent = nullptr;
+  Node *to_node;
+  Node *node = getNodeById(id);
+
+  // Проверяем, что node добавлен в граф
+  if (!alreadyInGraph(id)) {
+    return;
+  }
+
+  for (string to_id : to_another_ids) {
+
+    if (alreadyInGraph(to_id)) {
+      to_node = getNodeById(to_id);
       adjent = createAdjent(to_node);
 
       if (!node->adjency_list_head) {

@@ -91,6 +91,25 @@ TEST(GRAPH, ConnectNodes) {
   clearGraph();
 }
 
+// Тест создания связей между узлами по id
+TEST(GRAPH, ConnectNodesById) {
+  Node *node_a = createNode("A");
+  Node *node_b = createNode("B");
+  Node *node_c = createNode("C");
+  vector<string> to_another_nodes = {"B", "C"};
+
+  addNode(node_a);
+  addNode(node_b);
+  addNode(node_c);
+  connect("A", to_another_nodes);
+
+  EXPECT_EQ(node_a->adjency_list_head->my_head, node_b);
+  EXPECT_EQ(node_a->adjency_list_head->next_adjent->my_head, node_c);
+  EXPECT_EQ(node_a->adjency_list_tail->my_head, node_c);
+
+  clearGraph();
+}
+
 // Тест получения списка смежных узлов
 TEST(GRAPH, GetAdjentNodes) {
   Node *node_a = createNode("A");
@@ -130,12 +149,38 @@ TEST(GRAPH, ClearGraphWithConnections) {
 // ТЕСТЫ ПРОВЕРОК СОСТОЯНИЯ ГРАФА
 // ===========================================================================
 
-// Тест проверки наличия узла в графе
+// Тест проверки наличия узла в графе по указателю
 TEST(GRAPH, AlreadyInGraph) {
   Node *node = createNode("A");
   addNode(node);
 
   EXPECT_EQ(alreadyInGraph(node), true);
+
+  clearGraph();
+}
+
+// Тест проверки наличия узла в графе по указателю
+TEST(GRAPH, AlreadyInGraphById) {
+  Node *a = createNode("A");
+  Node *b = createNode("B");
+  addNode(a);
+  addNode(b);
+
+  EXPECT_TRUE(alreadyInGraph("A"));
+  EXPECT_TRUE(alreadyInGraph("B"));
+
+  clearGraph();
+}
+
+// Тест получения указателя на узел по id
+TEST(GRAPH, GetById) {
+  Node *a = createNode("A");
+  Node *b = createNode("B");
+  addNode(a);
+  addNode(b);
+
+  EXPECT_EQ(getNodeById("A"), a);
+  EXPECT_EQ(getNodeById("B"), b);
 
   clearGraph();
 }

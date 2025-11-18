@@ -9,7 +9,6 @@
 
 using std::fstream;
 using std::string;
-using std::vector;
 
 string readTxt(string path) {
   string result;

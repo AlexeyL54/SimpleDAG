@@ -1,0 +1,21 @@
+operations:
+
+  sum_elements_of_column_1:
+    func: sum
+    column: 1
+
+  sum_elements_of_column_2:
+    func: sum
+    column: 2
+
+  find_average_of_column_1:
+    func: average
+    column: 1
+
+  find_average_of_column_2:
+    func: average
+    column: 2
+
+  concat:
+    func: concatinate
+    column: 3

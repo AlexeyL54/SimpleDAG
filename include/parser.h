@@ -57,6 +57,13 @@ int getColumnById(string id);
  * @return тип операции
  */
 string getFuncById(string id);
+
+/*
+ * @brief Получить путь к файлу csv для обработки
+ * @return путь к файлу
+ */
+string getCSV();
+
 }; // namespace config
 
 namespace table {
@@ -116,6 +123,13 @@ vector<string> readStringColumn(int column);
  * @return вектор подстрок
  */
 vector<string> split(const string &s, const string &delimiter);
+
+/*
+ * @brief Считать схему графа из потокового ввода
+ * @param is указатель на поток ввода @brief Считать схему графа из потокового
+ * ввода
+ */
+vector<string> getScheme(std::istream &is);
 
 /**
  * @brief Создать граф по схеме

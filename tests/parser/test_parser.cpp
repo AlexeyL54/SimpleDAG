@@ -1,9 +1,9 @@
-// test_parser.cpp
 #include "../../include/graph.h"
 #include "../../include/parser.h"
 #include "gtest/gtest.h"
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -30,7 +30,8 @@ void createTestCSV(const string &filename) {
 
 void createTestYAML(const string &filename) {
   std::ofstream file(filename);
-  file << "operations:\n"
+  file << "path: test.csv\n"
+       << "operations:\n"
        << "  sum_elements_of_column_1:\n"
        << "    func: sum\n"
        << "    column: 1\n"
@@ -71,6 +72,14 @@ void createYAMLWithUnknownFunc(const string &filename) {
        << "    func: smthg\n"
        << "    column: 3\n";
   file.close();
+}
+
+// Тест считывания схемы графа из потока ввода
+TEST(PARSER, GetScheme) {
+  vector<string> scheme = {"A-->B-->C", "B-->D-->C"};
+  std::stringstream s("A-->B-->C\nB-->D-->C\nend\n");
+
+  EXPECT_EQ(scheme, getScheme(s));
 }
 
 // Тест разделителя строки
@@ -216,4 +225,18 @@ TEST(PARSER, CheckFunctions) {
   EXPECT_EQ(unknown, config::checkFunctions());
   config::clear();
   fs::remove(incorrect);
+}
+
+// Тест получения пути к файлу csv для обработки
+TEST(PARSER, GetCSV) {
+  string path = "test_getCSV.yaml";
+  string csv_path = "test.csv";
+
+  createTestYAML(path);
+  config::load(path);
+
+  EXPECT_EQ(csv_path, config::getCSV());
+
+  config::clear();
+  fs::remove(path);
 }

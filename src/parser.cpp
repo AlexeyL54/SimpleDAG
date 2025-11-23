@@ -18,9 +18,11 @@ using std::vector;
 namespace config {
 
 std::unique_ptr<TINY_YAML::Yaml> root;  // объект дерева конфигурации
-const string OPERATIONS = "operations"; // главный узел конфигурации
+const string OPERATIONS = "operations"; // поле доступных операций
+const string SOURCE = "source";         // поле файлов csv для обработки
 const string FUNC = "func";             // поле - название функции
 const string COLUMN = "column";         // поле - номер столбца
+const string PATH = "path";             // поле - путь к файлу csv для обработки
 
 /*
  * @brief Загрузить конфигурацию
@@ -147,6 +149,26 @@ string getFuncById(string id) {
   } catch (const std::exception &e) {
     std::cerr << "Error getting function for operation " << id << ": "
               << e.what() << std::endl;
+    return "";
+  }
+}
+
+/*
+ * @brief Получить путь к файлу csv для обработки
+ * @return путь к файлу
+ */
+string getCSV() {
+  if (!root) {
+    std::cerr << "Config not loaded" << std::endl;
+    return "";
+  }
+
+  try {
+    TINY_YAML::Node &data = (*root)[PATH];
+    return data.getData<string>();
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error getting path to data" << std::endl;
     return "";
   }
 }
@@ -291,6 +313,21 @@ vector<string> split(const string &s, const string &delimiter) {
   // добавить последний токен или всю строку, если разделитель не найден
   tokens.push_back(s.substr(start));
   return tokens;
+}
+
+/*
+ * @brief Считать схему графа из потокового ввода
+ * @param is указатель на поток ввода @brief Считать схему графа из потокового
+ * ввода
+ */
+vector<string> getScheme(std::istream &is) {
+  vector<string> lines;
+  string line;
+
+  while (std::getline(is, line) && line != "end") {
+    lines.push_back(line);
+  }
+  return lines;
 }
 
 /**

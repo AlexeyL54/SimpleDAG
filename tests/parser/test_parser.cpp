@@ -76,15 +76,15 @@ void createYAMLWithUnknownFunc(const string &filename) {
 
 // Тест считывания схемы графа из потока ввода
 TEST(PARSER, GetScheme) {
-  vector<string> scheme = {"A-->B-->C", "B-->D-->C"};
-  std::stringstream s("A-->B-->C\nB-->D-->C\nend\n");
+  vector<string> scheme = {"A->B->C", "B->D->C"};
+  std::stringstream s("A->B->C\nB->D->C\nend\n");
 
   EXPECT_EQ(scheme, getScheme(s));
 }
 
 // Тест разделителя строки
 TEST(PARSER, Split) {
-  vector<string> splited = split("A-->B", "-->");
+  vector<string> splited = split("A->B", "->");
 
   EXPECT_EQ(splited[0], "A");
   EXPECT_EQ(splited[1], "B");
@@ -92,9 +92,29 @@ TEST(PARSER, Split) {
 
 // Тест составления графа по схеме
 TEST(PARSER, CreateGraphFromScheme) {
-  vector<string> scheme = {"A-->B-->C", "B-->D-->C"};
+  vector<string> scheme = {"A->B->C", "B->D->C"};
 
   createGraphFromScheme(scheme);
+  Node *a = getNodeById("A");
+  Node *b = getNodeById("B");
+  Node *c = getNodeById("C");
+  Node *d = getNodeById("D");
+  vector<Node *> b_adjents = adjentNodes(b);
+
+  EXPECT_EQ(a->adjency_list_head->my_head, b);
+  EXPECT_EQ(b_adjents[0], c);
+  EXPECT_EQ(b_adjents[1], d);
+  EXPECT_EQ(d->adjency_list_head->my_head, c);
+
+  clearGraph();
+}
+
+// Тест составления графа по схеме
+TEST(PARSER, CreateGraphFromSchemeWithIndexes) {
+  vector<string> scheme = {"1->2->3", "2->4->3"};
+  vector<string> ids = {"A", "B", "C", "D"};
+
+  createGraphFromScheme(scheme, ids);
   Node *a = getNodeById("A");
   Node *b = getNodeById("B");
   Node *c = getNodeById("C");

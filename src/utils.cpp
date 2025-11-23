@@ -1,4 +1,5 @@
 #include "../include/graph.h"
+#include "../include/graphics.h"
 #include "../include/operations.h"
 #include "../include/parser.h"
 #include <filesystem>
@@ -224,12 +225,12 @@ std::string selectFileFromList(const std::vector<std::string> &files) {
     displayFileMenu(files);
 
     std::string prompt =
-        "📁 Выберите файл (0-" + std::to_string(files.size()) + "): ";
+        "Выберите файл (0-" + std::to_string(files.size()) + "): ";
     int choice =
         getValidatedNumberInput(prompt, 0, static_cast<int>(files.size()));
 
     if (choice == 0) {
-      std::cout << "👋 Выход из программы.\n";
+      std::cout << "Выход из программы.\n";
       return "";
     }
 

@@ -137,4 +137,11 @@ vector<string> getScheme(std::istream &is);
  */
 void createGraphFromScheme(vector<string> scheme);
 
+/**
+ * @brief Создать граф по схеме индексов id
+ * @param scheme вектор строк с индексами id операций
+ * @param ids вектор id операций
+ */
+void createGraphFromScheme(vector<string> scheme, vector<string> ids);
+
 #endif // !PARSER_H

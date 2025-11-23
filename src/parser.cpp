@@ -339,7 +339,7 @@ void createGraphFromScheme(vector<string> scheme) {
   vector<string> id;
 
   for (const string node : scheme) {
-    id = split(node, "-->");
+    id = split(node, "->");
     atom = createNode(id[0]);
     addNode(atom);
 
@@ -349,6 +349,31 @@ void createGraphFromScheme(vector<string> scheme) {
         addNode(atom);
       }
       connect(id[i - 1], {id[i]});
+    }
+  }
+}
+
+/**
+ * @brief Создать граф по схеме индексов id
+ * @param scheme вектор строк с индексами id операций
+ * @param ids вектор id операций
+ */
+void createGraphFromScheme(vector<string> scheme, vector<string> ids) {
+  Node *atom;
+  vector<string> indexes;
+
+  for (const string node : scheme) {
+    indexes = split(node, "->");
+    atom = createNode(ids[std::stoi(indexes[0]) - 1]);
+    addNode(atom);
+
+    for (size_t i = 1; i < indexes.size(); i++) {
+      if (!alreadyInGraph(ids[std::stoi(indexes[i]) - 1])) {
+        atom = createNode(ids[std::stoi(indexes[i]) - 1]);
+        addNode(atom);
+      }
+      connect(ids[std::stoi(indexes[i - 1]) - 1],
+              {ids[std::stoi(indexes[i]) - 1]});
     }
   }
 }

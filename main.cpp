@@ -1,4 +1,5 @@
 #include "include/graph.h"
+#include "include/graphics.h"
 #include "include/operations.h"
 #include "include/parser.h"
 #include "include/utils.h"
@@ -16,6 +17,7 @@ using std::vector;
 const string WORKING_DIR = "data";
 
 int main() {
+  cout << LOGO << endl;
 
   // выбрать файл конфигурации и загрузить конфигурацию
   vector<string> configs = collectFiles(WORKING_DIR, ".yaml");
@@ -42,9 +44,11 @@ int main() {
   table::read(csv);
 
   cout << endl;
-  cout << "Доступные операции:" << endl;
-  for (string id : config::getIds())
-    cout << id << endl;
+  vector<string> ids = config::getIds();
+  std::cout << "\n=== Доступные операции ===\n";
+  for (size_t i = 0; i < ids.size(); i++)
+    cout << "[" << i + 1 << "] " << ids[i] << endl;
+  std::cout << "==========================\n";
 
   // получить дату для названия лога
   time_t now = time(0);
@@ -52,8 +56,9 @@ int main() {
   logger::openLog(WORKING_DIR + "/" + dt);
 
   // получить схему графа и создать по ней граф
+  cout << INSRUCTIONS << endl;
   vector<string> scheme = getScheme(std::cin);
-  createGraphFromScheme(scheme);
+  createGraphFromScheme(scheme, ids);
 
   // запустить выполнение операций
   deepFirstSearch(procedure);

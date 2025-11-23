@@ -1,38 +1,155 @@
 #include "../include/parser.h"
 #include "../include/graph.h"
-// #include "../libs/csv-parser/include/csv.hpp"
-#include "../libs/mini-yaml/yaml/Yaml.hpp"
+#include "../include/operations.h"
+#include "../libs/Tiny_Yaml/yaml/yaml.hpp"
+#include <cstdio>
+#include <exception>
+#include <fstream>
+#include <map>
 #include <memory>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
-using csv::CSVReader;
-using csv::CSVRow;
 using std::string;
 using std::vector;
 
 namespace config {
-Yaml::Node root;
+
+std::unique_ptr<TINY_YAML::Yaml> root;  // объект дерева конфигурации
+const string OPERATIONS = "operations"; // главный узел конфигурации
+const string FUNC = "func";             // поле - название функции
+const string COLUMN = "column";         // поле - номер столбца
 
 /*
  * @brief Загрузить конфигурацию
  * @param path путь к конфигурационному файлу
  */
-void loadConfig(string path) { Yaml::Parse(root, path); }
+void load(string path) {
+  try {
+    root = std::make_unique<TINY_YAML::Yaml>(path);
+  } catch (const std::exception &e) {
+    std::cerr << "Error loading config: " << e.what() << std::endl;
+    root.reset();
+  }
+}
+
+/*
+ * Очистить объект конфигурации
+ */
+void clear() { root.reset(); }
+
+/*
+ * @brief Получить id всех доступных операций
+ * @param вектор id операций
+ */
+std::vector<std::string> getIds() {
+  std::vector<std::string> ids;
+
+  if (!root) {
+    std::cerr << "Config not loaded" << std::endl;
+    return ids;
+  }
+
+  try {
+    TINY_YAML::Node &operationsNode = (*root)[OPERATIONS];
+    ids = operationsNode.getChildIds();
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error getting operation IDs: " << e.what() << std::endl;
+  }
+
+  return ids;
+}
+
+/*
+ * @brief Проверить наличие операций из конфигурации
+ * @return словарь ненайденных функций, где ключ - id операции, значение -
+ * функция
+ */
+map<string, string> checkFunctions() {
+  map<string, string> unknown;
+  string func;
+
+  if (!root) {
+    std::cerr << "Config not loaded" << std::endl;
+    return unknown;
+  }
+
+  try {
+    vector<string> ids = getIds();
+
+    for (string id : ids) {
+      func = getFuncById(id);
+
+      if (operation_map.count(func) == 0) {
+        unknown.insert({id, func});
+      }
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Error checking functions: " << e.what() << std::endl;
+  }
+
+  return unknown;
+};
 
 /*
  * @brief Получить параметры (номера столбцов) по id
  * @param id уникальный идентификотор операции
  * @return номер столбца
  */
-int getColumnById(string id) { return root[id]["column"].As<int>(); }
+int getColumnById(string id) {
+  if (!root) {
+    std::cerr << "Config not loaded" << std::endl;
+    return -1;
+  }
+
+  try {
+    TINY_YAML::Node &operation = (*root)[OPERATIONS][id];
+
+    if (!operation.hasChild(COLUMN)) {
+      std::cerr << "Operation " << id << " has no column defined" << std::endl;
+      return -1;
+    }
+
+    std::string columnStr = operation[COLUMN].getData<std::string>();
+    return std::stoi(columnStr);
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error getting column for operation " << id << ": " << e.what()
+              << std::endl;
+    return -1;
+  }
+}
 
 /*
  * @brief Получить тип операции
  * @param id уникальный идентификатор операции
  * @return тип операции
  */
-string getOpTypeById(string id) { return root[id]["func"].As<string>(); }
+string getFuncById(string id) {
+  if (!root) {
+    std::cerr << "Config not loaded" << std::endl;
+    return "";
+  }
+
+  try {
+    TINY_YAML::Node &operation = (*root)[OPERATIONS][id];
+
+    if (!operation.hasChild(FUNC)) {
+      std::cerr << "Operation " << id << " has no function defined"
+                << std::endl;
+      return "";
+    }
+    return operation[FUNC].getData<std::string>();
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error getting function for operation " << id << ": "
+              << e.what() << std::endl;
+    return "";
+  }
+}
 
 }; // namespace config
 
@@ -40,13 +157,57 @@ string getOpTypeById(string id) { return root[id]["func"].As<string>(); }
 
 namespace table {
 
-std::unique_ptr<CSVReader> reader;
+vector<vector<string>> table;
 
 /**
  * @brief Инициализировать объкт документа
  * @param path путь к документу
  */
-void read(string path) { reader = std::make_unique<CSVReader>(path); }
+void read(string path, char delimiter) {
+  std::ifstream file(path);
+  string buffer;
+  vector<string> row;
+
+  if (not file.is_open()) {
+    std::cerr << "Failed to open file " << path << "in table::read"
+              << std::endl;
+    return;
+  }
+
+  while (std::getline(file, buffer)) {
+    std::stringstream s(buffer);
+
+    while (std::getline(s, buffer, delimiter)) {
+      row.push_back(buffer);
+    }
+
+    table.push_back(row);
+    row.clear();
+  }
+  file.close();
+}
+
+/**
+ * @brief Очистить таблицу
+ */
+void clear() { table.clear(); }
+
+/**
+ * @brief Определить, является ли строка числом
+ * @param s строка
+ * @return true если строка является числом, false - иначе
+ */
+bool isNumneric(string &s) {
+  try {
+    size_t pos;
+    std::stod(s, &pos);
+    return pos == s.length();
+  } catch (const std::invalid_argument &e) {
+    return false;
+  } catch (const std::out_of_range &e) {
+    return false;
+  }
+}
 
 /**
  * @brief Определяет тип данных столбца
@@ -58,52 +219,52 @@ ColumnType getTypeOfColumn(int column) {
   bool has_numbers = false;
   bool has_strings = false;
 
-  for (const CSVRow &row : *reader) {
-    string field = row[column].get<>();
-    if (row[column].is_num()) {
-      has_numbers = true;
-    } else {
-      has_strings = true;
+  for (vector<string> &row : table) {
+
+    if (column < row.size()) {
+
+      string field = row[column];
+      if (isNumneric(row[column])) {
+        has_numbers = true;
+      } else {
+        has_strings = true;
+      }
     }
+    if (has_numbers and has_strings == false)
+      return NUMERIC;
+    if (has_strings)
+      return STRING;
   }
-  if (has_numbers && has_strings)
-    return MIX;
-
-  if (has_numbers)
-    return NUMERIC;
-
-  if (has_strings)
-    return STRING;
 
   return UNKNOWN;
 }
 
 /*
  * @brief Считать столбец чисел из файла
- * @param reader указатель на "документ"
  * @param column номер столбца
  * @return вектор чисел столбца
  */
 vector<float> readNumericColumn(int column) {
   vector<float> values;
 
-  for (CSVRow &row : *reader) {
-    values.push_back(row[column].get<float>());
+  for (vector<string> &row : table) {
+    if (column < row.size())
+      values.push_back(stod(row[column]));
   }
   return values;
 }
 
 /*
  * @brief Считать столбец строк из файла
- * @param reader указатель на "документ"
  * @param column номер столбца
  * @return вектор чисел столбца
  */
 vector<string> readStringColumn(int column) {
   vector<string> values;
 
-  for (CSVRow &row : *reader) {
-    values.push_back(row[column].get<string>());
+  for (vector<string> &row : table) {
+    if (column < row.size())
+      values.push_back(row[column]);
   }
   return values;
 }

@@ -22,7 +22,7 @@ fstream log;
  * @param путь к файлу лога
  */
 void openLog(string path) {
-  fstream log(path);
+  log.open(path, std::ios::out); // Исправлено: открываем глобальную переменную
   if (not log.is_open())
     std::cerr << "Failed to open log" << std::endl;
 }
@@ -33,7 +33,9 @@ void openLog(string path) {
  * @param res результат выполнения
  */
 void writeResult(string id, float res) {
-  log << id << " >> " << res << std::endl;
+  if (log.is_open()) {
+    log << id << " >> " << res << std::endl;
+  }
 }
 
 /*
@@ -42,19 +44,29 @@ void writeResult(string id, float res) {
  * @param res результат выполнения
  */
 void writeResult(string id, string res) {
-  log << id << " >> " << res << std::endl;
+  if (log.is_open()) {
+    log << id << " >> " << res << std::endl;
+  }
 }
 
 /*
  * @brief Записать предупреждения
  * @param massage сообщение
  */
-void warning(string message) { log << message << std::endl; }
+void warning(string message) {
+  if (log.is_open()) {
+    log << message << std::endl;
+  }
+}
 
 /*
  * @brief Закрыть лог
  */
-void close() { log.close(); }
+void close() {
+  if (log.is_open()) {
+    log.close();
+  }
+}
 }; // namespace logger
 
 // =========================================================================
@@ -83,7 +95,7 @@ void getSourceFiles(string &config, string &res_file) {
  */
 void procedure(Node *node) {
   string id = node->id;
-  string type = config::getOpTypeById(id);
+  string type = config::getFuncById(id);
   int column = config::getColumnById(id);
 
   switch (table::getTypeOfColumn(column)) {
@@ -98,12 +110,6 @@ void procedure(Node *node) {
     vector<string> str_vec = table::readStringColumn(column);
     logger::writeResult(id, callOperation(type, str_vec));
     break;
-  }
-
-  case MIX: {
-    string message = "Different types found in column " +
-                     std::to_string(column) + ". Skipping " + id;
-    logger::warning(message);
   }
 
   case UNKNOWN: {

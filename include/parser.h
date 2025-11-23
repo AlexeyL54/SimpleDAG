@@ -1,12 +1,12 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../libs/csv-parser/include/csv.hpp"
-#include "../libs/mini-yaml/yaml/Yaml.hpp"
+#include "../libs/Tiny_Yaml/yaml/yaml.hpp"
+#include <map>
 #include <string>
 #include <vector>
 
-using csv::CSVReader;
+using std::map;
 using std::string;
 using std::vector;
 
@@ -16,7 +16,6 @@ using std::vector;
 enum ColumnType {
   NUMERIC, // Столбец содержит только числовые данные
   STRING,  // Столбец содержит только строковые данные
-  MIX,     // Столбец содержит данные разных типов
   UNKNOWN, // Тип данных не определен
 };
 
@@ -26,7 +25,24 @@ namespace config {
  * @brief Загрузить конфигурацию
  * @param path путь к конфигурационному файлу
  */
-void loadConfig(string path);
+void load(string path);
+
+/*
+ * Очистить объект конфигурации
+ */
+void clear();
+
+/*
+ * @brief Проверить наличие операций из конфигурации
+ * @return словарь ненайденных функций, где ключ - id операции, значение -
+ * функция
+ */
+map<string, string> checkFunctions();
+
+/*
+ * @brief Получить id всех доступных операций
+ */
+vector<string> getIds();
 
 /*
  * @brief Получить параметры (номера столбцов) по id
@@ -40,10 +56,33 @@ int getColumnById(string id);
  * @param id уникальный идентификатор операции
  * @return тип операции
  */
-string getOpTypeById(string id);
+string getFuncById(string id);
 }; // namespace config
 
 namespace table {
+
+/**
+ * @brief Инициализировать объкт документа
+ * @param path путь к документу
+ */
+void read(string path, char delimiter = ',');
+
+/**
+ * @brief Очистить таблицу
+ */
+void clear();
+
+/*
+ * @brief Получить id всех доступных операций
+ */
+vector<string> getIds();
+
+/**
+ * @brief Определить, является ли строка числом
+ * @param s строка
+ * @return true если строка является числом, false - иначе
+ */
+bool isNumneric(string &s);
 
 /**
  * @brief Определяет тип данных столбца

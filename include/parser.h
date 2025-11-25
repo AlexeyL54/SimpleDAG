@@ -19,6 +19,18 @@ enum ColumnType {
   UNKNOWN, // Тип данных не определен
 };
 
+/*
+ * @brief Перечисление типов возможных ошибок при создании схемы графа
+ */
+enum SchenmeError {
+  INDEX_OUT_OF_RANGE,   // не возможно илвечь id по индексу
+  EXPECT_DELIMITER,     // не найден разделитель
+  UNEXPECTED_DELIMITER, // разделитель найден на в начале или конце строки ввода
+  DELIMITER_MISMATCH,   // количество разделителей неверно
+  EMPTY,                // пустой ввод
+  NOT_INDEX,            // найден символ, не являющийся цифрой
+};
+
 namespace config {
 
 /*
@@ -63,7 +75,6 @@ string getFuncById(string id);
  * @return путь к файлу
  */
 string getCSV();
-
 }; // namespace config
 
 namespace table {

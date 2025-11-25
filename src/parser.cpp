@@ -15,6 +15,8 @@
 using std::string;
 using std::vector;
 
+const string SYMBOLS = "0123456789->";
+
 namespace config {
 
 std::unique_ptr<TINY_YAML::Yaml> root;  // объект дерева конфигурации
@@ -316,6 +318,29 @@ vector<string> split(const string &s, const string &delimiter) {
 }
 
 /*
+ * @brief Подсчитать количество вхождений подстроки в строку
+ * @param n1 строка
+ * @param n2 подстрока
+ * @return количество вхождений
+ */
+int countSubstrOccurrences(string str1, string str2) {
+  int n1 = str1.length();
+  int n2 = str2.length();
+
+  // основное условие
+  if (n1 == 0 || n1 < n2)
+    return 0;
+
+  // условие для выхода рекурсии
+  // проверить первую подстроку
+  if (str1.substr(0, n2).compare(str2) == 0)
+    return countSubstrOccurrences(str1.substr(1), str2) + 1;
+
+  // либо вернуть оставшийся индекс
+  return countSubstrOccurrences(str1.substr(1), str2);
+}
+
+/*
  * @brief Считать схему графа из потокового ввода
  * @param is указатель на поток ввода @brief Считать схему графа из потокового
  * ввода
@@ -328,6 +353,29 @@ vector<string> getScheme(std::istream &is) {
     lines.push_back(line);
   }
   return lines;
+}
+
+vector<SchenmeError> checkScheme(vector<string> &scheme, vector<string> ids) {
+  vector<SchenmeError> errors;
+  vector<string> indexes;
+
+  for (string s : scheme) {
+    indexes = split(s, "->");
+
+    // если разделитель в начале или в конце
+    if (s.find("->") == 0 or s.find("->") == s.length() - 1)
+      errors.push_back(UNEXPECTED_DELIMITER);
+
+    // если количество разделителей не верно
+    if (countSubstrOccurrences(s, "->") != indexes.size() - 1)
+      errors.push_back(DELIMITER_MISMATCH);
+
+    // если есть не цифры и не разделители
+    if (s.find_first_not_of(SYMBOLS) == string::npos)
+      errors.push_back(NOT_INDEX);
+  }
+
+  return errors;
 }
 
 /**

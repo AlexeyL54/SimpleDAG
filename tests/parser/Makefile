@@ -5,4 +5,4 @@ YAML = ../../libs/Tiny_Yaml//yaml/yaml.cpp
 GOOGLE_TEST = -lgtest -lgtest_main -lpthread
 
 default:
-	g++ $(SRC) $(YAML) $(GOOGLE_TEST) -I../../libs/csv-parser/include -o test_parser.out
+	g++ $(SRC) $(YAML) $(GOOGLE_TEST) -o test_parser.out

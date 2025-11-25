@@ -355,27 +355,48 @@ vector<string> getScheme(std::istream &is) {
   return lines;
 }
 
-vector<SchenmeError> checkScheme(vector<string> &scheme, vector<string> ids) {
-  vector<SchenmeError> errors;
-  vector<string> indexes;
+/*
+ * @brief Проверить ввод схемы
+ * @param scheme схема графа
+ * @param ids id операций
+ * @return вектор ошибок для каждой ветви схемы
+ */
+vector<vector<SchenmeError>> checkScheme(vector<string> &scheme,
+                                         vector<string> &ids) {
+  vector<vector<SchenmeError>> total_errors;
 
   for (string s : scheme) {
-    indexes = split(s, "->");
+    vector<SchenmeError> errors;
 
-    // если разделитель в начале или в конце
-    if (s.find("->") == 0 or s.find("->") == s.length() - 1)
-      errors.push_back(UNEXPECTED_DELIMITER);
+    if (s.empty()) {
+      errors.push_back(EMPTY);
+    } else {
+      // Проверка разделителя в начале или конце
+      if (s.find("->") == 0 || s.rfind("->") == s.length() - 2) {
+        errors.push_back(UNEXPECTED_DELIMITER);
+      }
 
-    // если количество разделителей не верно
-    if (countSubstrOccurrences(s, "->") != indexes.size() - 1)
-      errors.push_back(DELIMITER_MISMATCH);
+      // Проверка на недопустимые символы
+      if (s.find_first_not_of(SYMBOLS) != string::npos) {
+        errors.push_back(UNEXPECTED_SYMBOLS);
+      }
 
-    // если есть не цифры и не разделители
-    if (s.find_first_not_of(SYMBOLS) == string::npos)
-      errors.push_back(NOT_INDEX);
+      // Проверка индексов
+      vector<string> indexes = split(s, "->");
+      for (string index : indexes) {
+        try {
+          int idx = std::stoi(index);
+          if (idx < 1 || idx > static_cast<int>(ids.size())) {
+            errors.push_back(INDEX_OUT_OF_RANGE);
+          }
+        } catch (const std::exception &e) {
+          // Ошибка преобразования - индекс не число
+        }
+      }
+    }
+    total_errors.push_back(errors);
   }
-
-  return errors;
+  return total_errors;
 }
 
 /**
@@ -402,6 +423,7 @@ void createGraphFromScheme(vector<string> scheme) {
 }
 
 /**
+ * @todo "1-2", "1>2", "1->2->3, 4->5"
  * @brief Создать граф по схеме индексов id
  * @param scheme вектор строк с индексами id операций
  * @param ids вектор id операций

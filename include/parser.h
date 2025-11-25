@@ -24,11 +24,9 @@ enum ColumnType {
  */
 enum SchenmeError {
   INDEX_OUT_OF_RANGE,   // не возможно илвечь id по индексу
-  EXPECT_DELIMITER,     // не найден разделитель
   UNEXPECTED_DELIMITER, // разделитель найден на в начале или конце строки ввода
-  DELIMITER_MISMATCH,   // количество разделителей неверно
   EMPTY,                // пустой ввод
-  NOT_INDEX,            // найден символ, не являющийся цифрой
+  UNEXPECTED_SYMBOLS,   // найден символ, не являющийся цифрой или разделителем
 };
 
 namespace config {
@@ -141,6 +139,15 @@ vector<string> split(const string &s, const string &delimiter);
  * ввода
  */
 vector<string> getScheme(std::istream &is);
+
+/*
+ * @brief Проверить ввод схемы
+ * @param scheme схема графа
+ * @param ids id операций
+ * @return вектор ошибок для каждой ветви схемы
+ */
+vector<vector<SchenmeError>> checkScheme(vector<string> &scheme,
+                                         vector<string> &ids);
 
 /**
  * @brief Создать граф по схеме

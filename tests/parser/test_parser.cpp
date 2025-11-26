@@ -1,9 +1,9 @@
 #include "../../include/graph.h"
 #include "../../include/parser.h"
+#include "gtest/gtest.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <sstream>
 #include <string>
 #include <vector>

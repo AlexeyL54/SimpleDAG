@@ -2,9 +2,9 @@
 #include "../../include/operations.h"
 #include "../../include/parser.h"
 #include "../../include/utils.h"
+#include "gtest/gtest.h"
 #include <filesystem>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <string>
 
 using std::fstream;

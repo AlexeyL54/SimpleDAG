@@ -4,39 +4,57 @@ set -e
 
 echo "Building all tests..."
 echo "Current directory: $(pwd)"
-echo "Directory contents:"
-ls -la
 
-# Проверяем существование необходимых папок
-echo "Checking required directories..."
-[ -d "libs" ] && echo "✅ libs directory exists" || echo "❌ libs directory missing"
-[ -d "libs/Tiny_Yaml" ] && echo "✅ Tiny_Yaml exists" || echo "❌ Tiny_Yaml missing"
-[ -f "libs/Tiny_Yaml/yaml/yaml.hpp" ] && echo "✅ yaml.hpp exists" || echo "❌ yaml.hpp missing"
+# Конфигурация путей для разных ОС
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  echo "Building on macOS"
+  INCLUDE_FLAGS="-I../../include -I../../libs/Tiny_Yaml/yaml -I/opt/homebrew/include"
+  LIB_FLAGS="-L/opt/homebrew/lib -lgtest -lgtest_main -lpthread"
+  COMPILER="g++ -std=c++17"
+else
+  echo "Building on Linux"
+  INCLUDE_FLAGS="-I../../include -I../../libs/Tiny_Yaml/yaml"
+  LIB_FLAGS="-lgtest -lgtest_main -lpthread"
+  COMPILER="g++ -std=c++17"
+fi
 
+# Функция сборки одного теста
 build_test() {
-  local test_dir=$1
-  local test_name=$2
+  local test_name="$1"
+  local source_files="$2"
+  local test_dir="$3"
 
   echo "Building $test_name..."
-  echo "Entering tests/$test_dir"
+
   cd "tests/$test_dir"
-  echo "Current dir: $(pwd)"
-  echo "Running make..."
-  make default
+  $COMPILER $source_files $INCLUDE_FLAGS $LIB_FLAGS -o "${test_name}.out"
   cd ../..
 
   if [ -f "tests/$test_dir/${test_name}.out" ]; then
-    echo "✅ $test_name built successfully"
+    echo "✅ $test_name - SUCCESS"
   else
-    echo "❌ Failed to build $test_name - executable not found"
+    echo "❌ $test_name - FAILED"
     exit 1
   fi
 }
 
-# Сборка тестов
-build_test "operations" "test_operations"
-build_test "graph" "test_graph"
-build_test "parser" "test_parser"
-build_test "utils" "test_utils"
+# Сборка всех тестов
+echo "Starting test builds..."
+
+build_test "test_operations" \
+  "test_operations.cpp ../../src/operations.cpp" \
+  "operations"
+
+build_test "test_graph" \
+  "test_graph.cpp ../../src/graph.cpp" \
+  "graph"
+
+build_test "test_parser" \
+  "test_parser.cpp ../../src/graph.cpp ../../src/parser.cpp ../../src/operations.cpp ../../libs/Tiny_Yaml/yaml/yaml.cpp" \
+  "parser"
+
+build_test "test_utils" \
+  "test_utils.cpp ../../src/graph.cpp ../../src/operations.cpp ../../src/utils.cpp ../../src/parser.cpp ../../libs/Tiny_Yaml/yaml/yaml.cpp" \
+  "utils"
 
 echo "All tests built successfully!"

@@ -28,7 +28,7 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         brew update
-        brew install googletest gcc
+        brew install googletest
 
     - name: Build GoogleTest (Ubuntu)
       if: matrix.os == 'ubuntu-latest'

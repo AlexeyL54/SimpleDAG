@@ -1,6 +1,6 @@
 SRC = test_graph.cpp ../../src/graph.cpp
 GOOGLE_TEST = -lgtest -lgtest_main -lpthread
-INCLUDE = -I../../include -I../../libs
+INCLUDE = -I../../include -I../../libs/Tiny_Yaml/yaml
 
 default:
 	g++ $(SRC) $(GOOGLE_TEST) $(INCLUDE) -o test_graph.out

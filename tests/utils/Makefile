@@ -6,7 +6,7 @@ SRC = test_utils.cpp \
 
 YAML = ../../libs/Tiny_Yaml/yaml/yaml.cpp
 GOOGLE_TEST = -lgtest -lgtest_main -lpthread
-INCLUDE = -I../../include -I../../libs
+INCLUDE = -I../../include -I../../libs/Tiny_Yaml/yaml
 
 default:
 	g++ $(SRC) $(YAML) $(GOOGLE_TEST) $(INCLUDE) -o test_utils.out

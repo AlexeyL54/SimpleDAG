@@ -1,0 +1,58 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libgtest-dev
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew update
+        brew install googletest
+
+    - name: Build GoogleTest (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd /usr/src/gtest
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp lib/*.a /usr/lib
+
+    - name: Build tests
+      run: |
+        chmod +x buildTests.sh
+        ./buildTests.sh
+
+    - name: Run tests
+      run: |
+        chmod +x runTests.sh
+        ./runTests.sh
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-executables-${{ matrix.os }}
+        path: |
+          tests/**/*.out
+        retention-days: 7

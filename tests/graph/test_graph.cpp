@@ -1,6 +1,6 @@
 #include "../../include/graph.h"
-#include "gtest/gtest.h"
 #include <algorithm>
+#include <gtest/gtest.h>
 #include <string>
 #include <vector>
 

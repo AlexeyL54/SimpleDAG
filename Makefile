@@ -1,4 +1,5 @@
 SRC = main.cpp \
+			src/router.cpp \
 			src/graph.cpp \
 			src/parser.cpp \
 			src/operations.cpp \

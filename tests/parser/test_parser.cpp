@@ -1,6 +1,7 @@
 #include "../../include/graph.h"
 #include "../../include/parser.h"
 #include "gtest/gtest.h"
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -12,6 +13,10 @@ using std::string;
 using std::vector;
 
 namespace fs = std::filesystem;
+
+bool containsError(const vector<SchenmeError> &errors, SchenmeError target) {
+  return std::find(errors.begin(), errors.end(), target) != errors.end();
+}
 
 // Вспомогательные функции для создания временных файлов
 void createTestCSV(const string &filename) {
@@ -245,6 +250,28 @@ TEST(PARSER, CheckFunctions) {
   EXPECT_EQ(unknown, config::checkFunctions());
   config::clear();
   fs::remove(incorrect);
+}
+
+// Компактный тест проверки схемы
+TEST(PARSER, CheckScheme) {
+  vector<string> ids = {"op1", "op2", "op3", "op4", "op5"};
+  vector<string> scheme1 = {"1->2->3", "2->4"};
+  vector<string> scheme2 = {"1->4", "1->3"};
+  vector<string> scheme3 = {"->1->2"};
+  vector<string> scheme4 = {"1->a->3"};
+  vector<string> scheme5 = {"1->6->3"};
+  vector<string> scheme6 = {""};
+
+  // Корректные случаи
+  EXPECT_TRUE(checkScheme(scheme1, ids)[0].empty());
+  EXPECT_TRUE(checkScheme(scheme2, ids)[0].empty());
+
+  // Ошибочные случаи
+  EXPECT_TRUE(
+      containsError(checkScheme(scheme3, ids)[0], UNEXPECTED_DELIMITER));
+  EXPECT_TRUE(containsError(checkScheme(scheme4, ids)[0], UNEXPECTED_SYMBOLS));
+  EXPECT_TRUE(containsError(checkScheme(scheme5, ids)[0], INDEX_OUT_OF_RANGE));
+  EXPECT_TRUE(containsError(checkScheme(scheme6, ids)[0], EMPTY));
 }
 
 // Тест получения пути к файлу csv для обработки

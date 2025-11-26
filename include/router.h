@@ -1,46 +1,82 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
+#include "parser.h"
 #include <string>
+#include <vector>
 
-using std::string;
-
-/**
- * @brief Основная функция запуска приложения
- */
-void runApp();
+namespace SimpleDAG {
 
 /**
- * @brief Предоставляет пользователю выбор конфигурационного файла
- * @return Имя файла конфигурации
+ * @brief Главная функция запуска приложения SimpleDAG
+ * @param workingDir Рабочая директория с конфигурационными файлами и данными
+ * @return Код завершения программы (0 - успех, 1 - ошибка)
  */
-string chooseConfig();
+int run();
+
+namespace Internal {
 
 /**
- * @brief Предоставляет пользователю выбор файла csv
- * @return Имя файла csv
+ * @brief Загружает конфигурацию из YAML файла
+ * @param workingDir Рабочая директория для поиска конфигурационных файлов
+ * @return true если конфигурация успешно загружена, false в случае ошибки
  */
-string chooseSourceFile();
+bool loadConfiguration(const std::string &workingDir);
 
 /**
- * @brief Запрашивает у пользователя сценарий операций
+ * @brief Проверяет валидность загруженной конфигурации
+ * @return true если конфигурация валидна, false если найдены неизвестные
+ * функции
  */
-void manageTasks();
+bool validateConfiguration();
 
 /**
- * @brief Запрашивает у пользователя имя файла для сохранения результатов
- * @return Имя файла для сохранения
+ * @brief Загружает данные из CSV файла указанного в конфигурации
+ * @return true если данные успешно загружены, false в случае ошибки
  */
-string getFileName();
+bool loadDataTable();
 
 /**
- * @brief Запускает выполнение операций согласно построенному графу
+ * @brief Отображает список доступных операций из конфигурации
  */
-void runOperations();
+void displayAvailableOperations();
 
 /**
- * @brief Сохраняет результаты выполнения операций в файл
+ * @brief Инициализирует систему логирования с временной меткой
  */
-void saveResults();
+void initializeLogging();
+
+/**
+ * @brief Обрабатывает ввод и валидацию схемы графа от пользователя
+ * @param ids Список идентификаторов доступных операций
+ * @return true если схема успешно обработана, false в случае ошибки
+ */
+bool processGraphScheme(std::vector<std::string> &ids);
+
+/**
+ * @brief Отображает ошибки в строке схемы графа
+ * @param schemeLine Строка схемы с ошибкой
+ * @param errors Вектор ошибок для данной строки
+ * @param lineNumber Номер строки в схеме
+ */
+void displaySchemeErrors(const std::string &schemeLine,
+                         const std::vector<SchenmeError> &errors,
+                         int lineNumber);
+
+/**
+ * @brief Проверяет схему на валидность и отображает ошибки
+ * @param scheme Вектор строк схемы графа
+ * @param ids Список идентификаторов доступных операций
+ * @return true если схема валидна, false если найдены ошибки
+ */
+bool validateAndDisplayScheme(std::vector<std::string> &scheme,
+                              std::vector<std::string> &ids);
+
+/**
+ * @brief Освобождает ресурсы и очищает глобальное состояние
+ */
+void cleanup();
+} // namespace Internal
+} // namespace SimpleDAG
 
 #endif // !ROUTER_H

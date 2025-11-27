@@ -192,12 +192,12 @@ int getValidatedNumberInput(const std::string &prompt, int min, int max) {
 
     bool inputValid = processUserInput(input);
     if (!inputValid) {
-      continue; // Здесь continue допустим для повторения цикла
+      continue;
     }
 
     bool conversionValid = safeStringToInt(input, number);
     if (!conversionValid) {
-      continue; // Здесь continue допустим для повторения цикла
+      continue;
     }
 
     isValid = isInRange(number, min, max);

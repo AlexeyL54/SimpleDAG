@@ -1,1 +1,5 @@
 SimpleDAG.out
+tests/operations/test_operations.out
+tests/graph/test_graph.out 
+tests/parser/test_parser.out 
+tests/utils/test_utils.out

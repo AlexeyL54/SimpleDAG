@@ -155,6 +155,7 @@ bool processGraphScheme(std::vector<std::string> &ids) {
   vector<string> scheme;
 
   do {
+    std::cout << "Ввод" << std::endl;
     scheme = getScheme(std::cin);
 
     // Проверить схему и вывести ошибки если есть

@@ -1,0 +1,16 @@
+path: test.csv
+
+operations:
+
+  sum_elements_of_column_2:
+    func: sum
+    column: 2
+
+  find_average_of_column_2:
+    func: average
+    column: 2
+
+  concat:
+    func: concatinate
+    column: 3
+

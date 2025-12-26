@@ -24,6 +24,9 @@ const string WORKING_DIR = "data";
  * @return Код завершения программы (0 - успех, 1 - ошибка)
  */
 int run() {
+  // Вывести лого
+  cout << LOGO << endl;
+
   // Загрузить конфигурацию
   if (!Internal::loadConfiguration(WORKING_DIR)) {
     return 1;
@@ -101,6 +104,10 @@ bool validateConfiguration() {
     cout << "В файле конфигурации могут быть указаны только функции, которые "
             "есть в этом списке:"
          << endl;
+
+    for (const auto &func : operation_map) {
+      cout << "- " << func.first << endl;
+    }
     return false;
   }
   return true;

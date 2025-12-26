@@ -176,7 +176,8 @@ bool isInRange(int number, int min, int max) {
 }
 
 /**
- * @brief Получает числовой ввод от пользователя с валидацией
+ * @brief Получает числовой ввод от пользователя с валидацией (версия без
+ * continue)
  * @param prompt приглашение для ввода
  * @param min минимальное допустимое значение
  * @param max максимальное допустимое значение
@@ -184,23 +185,25 @@ bool isInRange(int number, int min, int max) {
  */
 int getValidatedNumberInput(const std::string &prompt, int min, int max) {
   std::string input;
-  int number;
-  bool isValid = false;
+  int number = min - 1; // Начальное невалидное значение
 
-  while (!isValid) {
+  while (number < min || number > max) {
     std::cout << prompt;
+    std::getline(std::cin, input);
+    input = trimString(input);
 
-    bool inputValid = processUserInput(input);
-    if (!inputValid) {
-      continue;
+    if (isNumber(input) && safeStringToInt(input, number)) {
+      if (number >= min && number <= max) {
+        break; // Валидный ввод - выходим из цикла
+      } else {
+        std::cout << "❌ Ошибка: число должно быть от " << min << " до " << max
+                  << "!\n";
+        number = min - 1; // Сбрасываем для продолжения цикла
+      }
+    } else {
+      std::cout << "❌ Ошибка: введите число от " << min << " до " << max
+                << "!\n";
     }
-
-    bool conversionValid = safeStringToInt(input, number);
-    if (!conversionValid) {
-      continue;
-    }
-
-    isValid = isInRange(number, min, max);
   }
 
   return number;
@@ -240,42 +243,6 @@ std::string selectFileFromList(const std::vector<std::string> &files) {
   }
 
   return selectedFile;
-}
-
-// Альтернативная версия getValidatedNumberInput без continue
-/**
- * @brief Получает числовой ввод от пользователя с валидацией (версия без
- * continue)
- * @param prompt приглашение для ввода
- * @param min минимальное допустимое значение
- * @param max максимальное допустимое значение
- * @return валидное число в заданном диапазоне
- */
-int getValidatedNumberInputNoContinue(const std::string &prompt, int min,
-                                      int max) {
-  std::string input;
-  int number = min - 1; // Начальное невалидное значение
-
-  while (number < min || number > max) {
-    std::cout << prompt;
-    std::getline(std::cin, input);
-    input = trimString(input);
-
-    if (isNumber(input) && safeStringToInt(input, number)) {
-      if (number >= min && number <= max) {
-        break; // Валидный ввод - выходим из цикла
-      } else {
-        std::cout << "❌ Ошибка: число должно быть от " << min << " до " << max
-                  << "!\n";
-        number = min - 1; // Сбрасываем для продолжения цикла
-      }
-    } else {
-      std::cout << "❌ Ошибка: введите число от " << min << " до " << max
-                << "!\n";
-    }
-  }
-
-  return number;
 }
 
 }; // namespace tui

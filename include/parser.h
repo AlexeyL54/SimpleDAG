@@ -23,7 +23,7 @@ enum ColumnType {
  * @brief Перечисление типов возможных ошибок при создании схемы графа
  */
 enum SchenmeError {
-  INDEX_OUT_OF_RANGE,   // не возможно илвечь id по индексу
+  INDEX_OUT_OF_RANGE,   // не возможно извлечь id по индексу
   UNEXPECTED_DELIMITER, // разделитель найден на в начале или конце строки ввода
   EMPTY,                // пустой ввод
   UNEXPECTED_SYMBOLS,   // найден символ, не являющийся цифрой или разделителем

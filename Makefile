@@ -8,5 +8,5 @@ SRC = main.cpp \
 YAML = libs/Tiny_Yaml/yaml/yaml.cpp
 
 default:
-	g++ -std=c++17 $(SRC) $(YAML) -o SimpleDAG.out
+	g++ -std=c++17 $(SRC) $(YAML) -static -o SimpleDAG.out
 

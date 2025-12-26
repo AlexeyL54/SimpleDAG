@@ -94,7 +94,7 @@ bool alreadyInGraph(string id) {
 }
 
 /*
- * @brief Получть узел по id
+ * @brief Получить узел по id
  * @param id уникальный идентификатор узла
  * @return указатель на узел, если найден, nullptr - если нет
  */
@@ -162,7 +162,7 @@ void connect(Node *node, vector<Node *> to_another_nodes) {
 /*
  * @brief Связать узел с другими
  * @param id уникальный идентификатор узла
- * @param to_another_ids вектор кникальных идентификаторов узлов, в которые
+ * @param to_another_ids вектор уникальных идентификаторов узлов, в которые
  * нужно попасть из узла с идентификатором id
  */
 void connect(string id, vector<string> to_another_ids) {
@@ -266,7 +266,7 @@ void deleteAdjentyList(Node *node) {
 
 /*
  * @brief Удалить элемент списка смежности
- * @param head узел графа из которого можно попасть в adjent
+ * @param head узел графа, из которого можно попасть в adjent
  * @param adjent элемент списка смежности
  */
 void deleteAdjent(Node *node, Adjent *adjent) {

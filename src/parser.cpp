@@ -100,7 +100,7 @@ map<string, string> checkFunctions() {
 
 /*
  * @brief Получить параметры (номера столбцов) по id
- * @param id уникальный идентификотор операции
+ * @param id уникальный идентификатор операции
  * @return номер столбца
  */
 int getColumnById(string id) {
